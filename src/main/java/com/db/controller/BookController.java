@@ -63,7 +63,7 @@ public class BookController {
 	}
 	
 	//update employee rest api
-	@PutMapping("/books/{bookId}")
+	@PutMapping("/books3/{bookId}")
 	public ResponseEntity<Book> updateBook(@PathVariable int bookId,@RequestBody Book bookDetails)
 	{
 		
@@ -71,7 +71,7 @@ public class BookController {
 		Book book = bookRepository.findById(bookId)
 				.orElseThrow(() -> new ResourceNotFoundException("Employee not exist with id :" + bookId));
 		book.setTitle(bookDetails.getTitle());
-		book.setUserId(book.getUserId());
+		book.setUserId(bookDetails.getUserId());
 		book.setAuthor(bookDetails.getAuthor());
 		book.setPublisher(bookDetails.getPublisher());
 		book.setGenre(bookDetails.getGenre());
