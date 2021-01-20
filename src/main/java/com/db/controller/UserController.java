@@ -1,16 +1,21 @@
 package com.db.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +42,8 @@ public class UserController {
 	@Autowired
     private JavaMailSender javaMailSender;
 	
+	//private static final String MY_SESSION_USER_ID_CONSTANT = "MY_SESSION_IDS";
+	//private static final Logger log = LoggerFactory.getLogger(UserController.class);
 	
 	int userId;
 
@@ -47,10 +54,10 @@ public class UserController {
 	
 	//get user by userName
 	@GetMapping("/getUser/{userName}")
-	public ResponseEntity<User> getUserByName(@PathVariable String userName) {
+	public User getUserByName(@PathVariable String userName) {
 		User user = userRepository.findByUserName(userName);
 				
-		return ResponseEntity.ok(user);
+		return user;
 	}
 	
 	//get user by emailId
@@ -64,11 +71,56 @@ public class UserController {
 	//login 
 	
 	@PostMapping("/login")
-	public List<User> cheakLogin(@RequestBody User user,HttpSession session) {
+	public List<User> cheakLogin(@RequestBody User user) {
 		//serviceProviderServiceDetails.setUserIdSp(((User)session.getAttribute("userid")).getUserId());
 		user.setUserId(userId);
+		
+		
+		
+		 // Get the notes from request session.
+       /* List<String> userIds = (List<String>) request.getSession().getAttribute("MY_SESSION_USER_ID_CONSTANT");
+ 
+        // Check if notes is present in session or not.
+        if (userIds == null) {
+            //log.info("No user Id are fetch from the session object. Setting the value in the session object.");
+            userIds = new ArrayList<>();
+            request.getSession().setAttribute("MY_SESSION_USER_ID", userIds);
+        }
+ 
+        userIds.add(String.valueOf(user1.get(0).getUserId()));
+        request.getSession().setAttribute("MY_SESSION_USER_ID", userIds);
+        */
+		
+      
 		return userRepository.findByEmailIdAndPassword(user.getEmailId(),user.getPassword());
 	}
+	
+		/*
+		@PostMapping("/login")
+		public User cheakLogin(@RequestBody User user,HttpSession session) {
+			//serviceProviderServiceDetails.setUserIdSp(((User)session.getAttribute("userid")).getUserId());
+			user.setUserId(userId);
+			User user1 = userRepository.findByEmailIdAndPassword(user.getEmailId(),user.getPassword());
+			return  user1;
+		}
+		*/
+	/*
+	 * @PostMapping("/login")
+	public boolean cheakLogin(@RequestBody User user,HttpSession session) {
+		//serviceProviderServiceDetails.setUserIdSp(((User)session.getAttribute("userid")).getUserId());
+		
+		user.setUserId(userId);
+		 List<User> user1 = userRepository.findByEmailIdAndPassword(user.getEmailId(),user.getPassword());
+		 //return user1.get(0);
+		 if(user1.get(0).getUserName()!="null")
+		 {
+			 return true;
+		 }
+		 else
+		 {
+			 return false;
+		 }
+	}*/
 	
 	//register
 	
@@ -115,5 +167,13 @@ public class UserController {
 		
 	}
 
+	//Destroy Session
+	 @PostMapping(value = "/destroy")
+	    public void destroySession(final HttpServletRequest request) {
+	        //log.info("Invaliding the session and removing the data.");
+	        // Invalidate the session and this will clear the data from the configured database.
+	        request.getSession().invalidate();
+	       
+	    }
 
 }
