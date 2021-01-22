@@ -26,7 +26,7 @@ import com.db.repository.ExchangeRequestRepository;
 import com.db.repository.OrderRepository;
 import com.db.repository.UserRepository;
 
-//@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 public class OrderController {
 	
