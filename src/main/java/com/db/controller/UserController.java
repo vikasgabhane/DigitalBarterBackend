@@ -2,7 +2,9 @@ package com.db.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
@@ -17,6 +19,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.db.repository.UserRepository;
 import com.db.DigitalBarterApplication;
+import com.db.dto.Book;
 import com.db.dto.User;
+import com.db.exception.ResourceNotFoundException;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -72,70 +77,20 @@ public class UserController {
 	
 	@PostMapping("/login")
 	public List<User> cheakLogin(@RequestBody User user) {
-		//serviceProviderServiceDetails.setUserIdSp(((User)session.getAttribute("userid")).getUserId());
-		user.setUserId(userId);
-		
-		
-		
-		 // Get the notes from request session.
-       /* List<String> userIds = (List<String>) request.getSession().getAttribute("MY_SESSION_USER_ID_CONSTANT");
- 
-        // Check if notes is present in session or not.
-        if (userIds == null) {
-            //log.info("No user Id are fetch from the session object. Setting the value in the session object.");
-            userIds = new ArrayList<>();
-            request.getSession().setAttribute("MY_SESSION_USER_ID", userIds);
-        }
- 
-        userIds.add(String.valueOf(user1.get(0).getUserId()));
-        request.getSession().setAttribute("MY_SESSION_USER_ID", userIds);
-        */
-		
+		user.setUserId(userId);		
       
 		return userRepository.findByEmailIdAndPassword(user.getEmailId(),user.getPassword());
 	}
 	
-		/*
-		@PostMapping("/login")
-		public User cheakLogin(@RequestBody User user,HttpSession session) {
-			//serviceProviderServiceDetails.setUserIdSp(((User)session.getAttribute("userid")).getUserId());
-			user.setUserId(userId);
-			User user1 = userRepository.findByEmailIdAndPassword(user.getEmailId(),user.getPassword());
-			return  user1;
-		}
-		*/
-	/*
-	 * @PostMapping("/login")
-	public boolean cheakLogin(@RequestBody User user,HttpSession session) {
-		//serviceProviderServiceDetails.setUserIdSp(((User)session.getAttribute("userid")).getUserId());
 		
-		user.setUserId(userId);
-		 List<User> user1 = userRepository.findByEmailIdAndPassword(user.getEmailId(),user.getPassword());
-		 //return user1.get(0);
-		 if(user1.get(0).getUserName()!="null")
-		 {
-			 return true;
-		 }
-		 else
-		 {
-			 return false;
-		 }
-	}*/
-	
-	//register
 	
 	@PostMapping("/adduser")
-	public User insertUser(@RequestBody User user,HttpSession session) {
+	public User insertUser(@RequestBody User user) {
 		User user1=userRepository.save(user);
-		System.out.println(user1.getUserId());
-		 userId=user1.getUserId();
-		//session.setAttribute("userid", user1);
-		session.setAttribute("userId", userId);
-		//System.out.println(((User)session.getAttribute("userid")).getUserId());
-			System.out.println("60 "+session.getAttribute("userId"));
+		
 		return user1;
 		
-		//return userRepository.save(user);
+		
 				
 	}
 	
@@ -143,7 +98,6 @@ public class UserController {
 	
 	@PutMapping("/changepassword/{userName}")
 	public ResponseEntity<User> changePassword(@PathVariable String userName, @RequestBody User userDetails){
-		//Employee employee = employeeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Employee not exist with id :" + id));
 		User user = userRepository.findByUserName(userName);
 
 		user.setPassword(userDetails.getPassword());
@@ -175,5 +129,17 @@ public class UserController {
 	        request.getSession().invalidate();
 	       
 	    }
+	 
+	// delete User rest api
+			@DeleteMapping("/deleteuser/{userId}")
+			public ResponseEntity<Map<String, Boolean>> deleteEmployee(@PathVariable int userId){
+				User user = userRepository.findById(userId)
+						.orElseThrow(() -> new ResourceNotFoundException("User not exist with id :" + userId));
+				
+				userRepository.delete(user);
+				Map<String, Boolean> response = new HashMap<>();
+				response.put("deleted", Boolean.TRUE);
+				return ResponseEntity.ok(response);
+			}
 
 }

@@ -52,13 +52,13 @@ public class BookController {
 	
 	//get book by id rest api
 	@GetMapping("/books/{bookId}")
-	public ResponseEntity<Optional<Book>>  getBookById(@PathVariable int bookId)
+	public Book  getBookById(@PathVariable int bookId)
 	{
+		Book book = bookRepository.findById(bookId)
+				.orElseThrow(() -> new ResourceNotFoundException("Employee not exist with id :" + bookId));
 		
-		Optional<Book> book = bookRepository.findById(bookId);
+		return book;
 		
-		
-		return ResponseEntity.ok(book);
 		
 	}
 	
@@ -70,6 +70,7 @@ public class BookController {
 		//Book book = bookRepository.findById(bookId);
 		Book book = bookRepository.findById(bookId)
 				.orElseThrow(() -> new ResourceNotFoundException("Employee not exist with id :" + bookId));
+				
 		book.setTitle(bookDetails.getTitle());
 		book.setUserId(bookDetails.getUserId());
 		book.setAuthor(bookDetails.getAuthor());
